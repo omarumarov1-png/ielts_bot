@@ -131,6 +131,7 @@ PROMPT_POLISH = """Ты — опытный редактор IELTS эссе. Ул
 2. Исправь грамматические ошибки
 3. Улучши связность — добавь/улучши linking words
 4. Сохрани оригинальную позицию и аргументы автора
+5. Не переписывай эссе настолько сложным языком, что оно перестанет звучать как текст этого студента — улучшения должны быть реалистичными, не выше уровня B2-C1
 
 ФОРМАТ ОТВЕТА:
 
@@ -146,7 +147,10 @@ PROMPT_POLISH = """Ты — опытный редактор IELTS эссе. Ул
 • [изменение 3]
 • [ещё изменения...]
 
-🎯 ОЖИДАЕМЫЙ ПРИРОСТ БАЛЛА: +0.5 — +1.0"""
+🎯 ОЖИДАЕМЫЙ ПРИРОСТ БАЛЛА: +0.5 — +1.0
+
+📊 ЧЕСТНО О ПОТОЛКЕ:
+Косметическая правка одного эссе поднимает балл, но не меняет фундаментальный уровень владения языком. Если для выхода на 8.0+ нужна более глубокая работа — над структурой аргументации, разнообразием грамматических конструкций, естественностью академического стиля — прямо скажи об этом и кратко укажи, что именно для этого нужно прорабатывать системно, а не за одну правку."""
 
 # ─── /start ────────────────────────────────────────────────────
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -159,6 +163,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"👋 Привет, {name}\\!\n\n"
         f"Я — AI\\-проверяющий IELTS Writing Task 2\\.\n"
         f"Оцениваю эссе по 4 критериям экзаменатора за 15 секунд\\.\n\n"
+        f"⚖️ Оцениваю строго, как на реальном экзамене — без завышения баллов\\. Если я ставлю 7\\.0, на экзамене ты тоже получишь примерно 7\\.0\\.\n\n"
         f"📋 *Как пользоваться:*\n"
         f"Просто отправь своё эссе в этот чат\\.\n\n"
         f"🎁 Бесплатных проверок: *{free_left} из 2*\n"
@@ -444,6 +449,7 @@ async def check_essay(update: Update, context: ContextTypes.DEFAULT_TYPE):
             messages=[{"role": "user", "content": f"Проверь IELTS Writing Task 2:\n\n{text}"}]
         )
         result = response.content[0].text
+        is_first_check = (get_user(uid)["checks_used"] == 0 and not get_user(uid)["paid"])
         use_check(uid)
 
         user = get_user(uid)
@@ -457,7 +463,11 @@ async def check_essay(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if free_left == 0:
                 remaining += "\n\nНапиши /buy чтобы продолжить."
 
-        await update.message.reply_text(result + remaining)
+        prefix = ""
+        if is_first_check:
+            prefix = "⚖️ Оцениваю строго, как настоящий экзаменатор — без завышения баллов.\n\n"
+
+        await update.message.reply_text(prefix + result + remaining)
 
     except Exception as e:
         logger.error(f"Check error: {e}")
