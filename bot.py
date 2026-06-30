@@ -447,6 +447,15 @@ async def check_essay(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ─── Запуск ────────────────────────────────────────────────────
 def main():
+    # Явно создаём event loop — нужно для Python 3.14, где
+    # asyncio.get_event_loop() больше не создаёт loop автоматически
+    import asyncio
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
     app.add_handler(CommandHandler("start",   start))
