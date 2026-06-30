@@ -18,6 +18,10 @@ TELEGRAM_TOKEN    = os.environ["TELEGRAM_TOKEN"]
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 ADMIN_ID          = int(os.environ.get("ADMIN_ID", "0"))
 
+# ─── VIP — безлимитный Premium-доступ навсегда ─────────────────
+# Добавляй сюда ID родных/друзей через запятую: {7383007115, 123456789}
+VIP_IDS = {7383007115}
+
 client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 # ─── Тарифы ────────────────────────────────────────────────────
@@ -59,12 +63,16 @@ def update_user(uid: str, data: dict):
     save_db(db)
 
 def can_check(uid: str) -> bool:
+    if int(uid) in VIP_IDS:
+        return True
     u = get_user(uid)
     if u["paid"] and u["paid_checks"] > 0:
         return True
     return u["checks_used"] < u["free_limit"]
 
 def use_check(uid: str):
+    if int(uid) in VIP_IDS:
+        return  # VIP — проверки не расходуются
     u = get_user(uid)
     if u["paid"] and u["paid_checks"] > 0:
         update_user(uid, {"paid_checks": u["paid_checks"] - 1})
@@ -72,6 +80,8 @@ def use_check(uid: str):
         update_user(uid, {"checks_used": u["checks_used"] + 1})
 
 def is_premium(uid: str) -> bool:
+    if int(uid) in VIP_IDS:
+        return True
     return get_user(uid).get("premium", False)
 
 # ─── Промпты ───────────────────────────────────────────────────
@@ -218,6 +228,15 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid  = str(update.effective_user.id)
     user = get_user(uid)
     free_left = max(0, user["free_limit"] - user["checks_used"])
+
+    if int(uid) in VIP_IDS:
+        await update.message.reply_text(
+            "📋 *Твой статус:*\n\n"
+            "Тариф: ♾️ *VIP \\(безлимит навсегда\\)*\n"
+            "Команда /polish доступна",
+            parse_mode="Markdown"
+        )
+        return
 
     if user["paid"] and user["premium"]:
         tier = "👑 Premium"
@@ -414,8 +433,7 @@ async def check_essay(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     await update.message.reply_text(
-        "🔍 *Анализирую эссе...*\n\nПроверяю по 4 критериям IELTS\\. Обычно 10–20 секунд ⏳",
-        parse_mode="MarkdownV2"
+        "🔍 Анализирую эссе...\n\nПроверяю по 4 критериям IELTS. Обычно 10–20 секунд ⏳"
     )
 
     try:
