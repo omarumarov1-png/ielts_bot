@@ -282,10 +282,10 @@ async def polish(update: Update, context: ContextTypes.DEFAULT_TYPE):
         result = response.content[0].text
         # Telegram ограничение 4096 символов — делим если нужно
         if len(result) > 4000:
-            await update.message.reply_text(result[:4000], parse_mode="Markdown")
-            await update.message.reply_text(result[4000:], parse_mode="Markdown")
+            await update.message.reply_text(result[:4000])
+            await update.message.reply_text(result[4000:])
         else:
-            await update.message.reply_text(result, parse_mode="Markdown")
+            await update.message.reply_text(result)
     except Exception as e:
         logger.error(f"Polish error: {e}")
         await update.message.reply_text("❌ Ошибка. Попробуй ещё раз.")
@@ -439,7 +439,7 @@ async def check_essay(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if free_left == 0:
                 remaining += "\n\nНапиши /buy чтобы продолжить."
 
-        await update.message.reply_text(result + remaining, parse_mode="Markdown")
+        await update.message.reply_text(result + remaining)
 
     except Exception as e:
         logger.error(f"Check error: {e}")
