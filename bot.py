@@ -200,7 +200,7 @@ async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "   • Приоритетная поддержка\n\n"
         "━━━━━━━━━━━━━━━━━━━━\n"
         "📲 *Как оплатить:*\n"
-        f"1\\. Переведи на Kaspi: *\\+7 XXX XXX XXXX*\n"
+        f"1\\. Переведи на Kaspi: *\\+7 702 567 61 05*\n"
         f"2\\. В комментарии напиши свой ID: `{uid}`\n"
         "3\\. Пришли скриншот в этот чат\n\n"
         "⏰ Доступ открывается за 15 минут"
@@ -381,7 +381,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text(
             f"✅ Отлично\\! Ты выбрал *{plan_info['name']}*\n\n"
             f"💳 Сумма: *{plan_info['price']}*\n\n"
-            f"Переведи на Kaspi: *\\+7 XXX XXX XXXX*\n"
+            f"Переведи на Kaspi: *\\+7 702 567 61 05*\n"
             f"В комментарии напиши свой ID: `{uid}`\n\n"
             f"Пришли скриншот — доступ за 15 минут ⏰",
             parse_mode="MarkdownV2"
