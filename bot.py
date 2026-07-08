@@ -26,7 +26,7 @@ client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 # ─── Тарифы ────────────────────────────────────────────────────
 PLANS = {
-    "standard": {"name": "Standard",  "price": "2 990 тг/мес", "checks": 30,  "premium": False},
+    "standard": {"name": "Standard",  "price": "2 990 тг/мес", "checks": 10,  "premium": False},
     "premium":  {"name": "Premium",   "price": "7 990 тг/мес", "checks": 90,  "premium": True},
 }
 
@@ -85,7 +85,7 @@ def is_premium(uid: str) -> bool:
     return get_user(uid).get("premium", False)
 
 # ─── Промпты ───────────────────────────────────────────────────
-PROMPT_CHECK = """Ты — строгий экзаменатор IELTS Writing Task 2. Оценивай честно.
+PROMPT_CHECK = """Ты — доброжелательный экзаменатор IELTS Writing Task 2. Оценивай честно, но снисходительно.
 
 Критерии:
 1. Task Response (TR) — тема, позиция, аргументы
@@ -122,7 +122,7 @@ PROMPT_CHECK = """Ты — строгий экзаменатор IELTS Writing T
 💡 Совет:
 [1 конкретный совет]
 
-Не завышай оценки. Среднее эссе — 5.5–6.0."""
+Оценивай мягче реального экзамена — на 1–1.5 балла выше строгой шкалы IELTS. Среднее эссе — 6.5–7.0. Не занижай балл за мелкие недочёты, фокусируйся на поддержке и позитивной обратной связи, но сохраняй честность в разделе "Что улучшить"."""
 
 PROMPT_POLISH = """Ты — опытный редактор IELTS эссе. Улучши эссе студента, сохранив его идеи и структуру.
 
@@ -163,11 +163,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"👋 Привет, {name}\\!\n\n"
         f"Я — AI\\-проверяющий IELTS Writing Task 2\\.\n"
         f"Оцениваю эссе по 4 критериям экзаменатора за 15 секунд\\.\n\n"
-        f"⚖️ Оцениваю строго, как на реальном экзамене — без завышения баллов\\. Если я ставлю 7\\.0, на экзамене ты тоже получишь примерно 7\\.0\\.\n\n"
+        f"⚖️ Оцениваю честно и по делу, с акцентом на поддержку и рост\\.\n\n"
         f"📋 *Как пользоваться:*\n"
         f"Просто отправь своё эссе в этот чат\\.\n\n"
         f"🎁 Бесплатных проверок: *{free_left} из 2*\n"
-        f"💳 Standard — 2 990 тг/мес \\(30 проверок\\)\n"
+        f"💳 Standard — 2 990 тг/мес \\(10 проверок\\)\n"
         f"👑 Premium — 7 990 тг/мес \\(90 проверок \\+ /polish\\)\n\n"
         f"Напиши /buy чтобы выбрать тариф\\."
     )
@@ -205,7 +205,7 @@ async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
         "💳 *Тарифы IELTSmindset AI:*\n\n"
         "🥉 *Standard — 2 990 тг/мес*\n"
-        "   • 30 проверок эссе\n"
+        "   • 10 проверок эссе\n"
         "   • История проверок\n"
         "   • Советы экзаменатора\n\n"
         "👑 *Premium — 7 990 тг/мес*\n"
@@ -430,7 +430,7 @@ async def check_essay(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "🔒 *Бесплатные проверки исчерпаны*\n\n"
             "Выбери тариф чтобы продолжить:\n"
-            "• 🥉 Standard — 2 990 тг/мес → 30 проверок\n"
+            "• 🥉 Standard — 2 990 тг/мес → 10 проверок\n"
             "• 👑 Premium — 7 990 тг/мес → 90 проверок + /polish",
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup(kb)
@@ -465,7 +465,7 @@ async def check_essay(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         prefix = ""
         if is_first_check:
-            prefix = "⚖️ Оцениваю строго, как настоящий экзаменатор — без завышения баллов.\n\n"
+            prefix = "⚖️ Оцениваю честно и по делу, с акцентом на поддержку и рост.\n\n"
 
         await update.message.reply_text(prefix + result + remaining)
 
